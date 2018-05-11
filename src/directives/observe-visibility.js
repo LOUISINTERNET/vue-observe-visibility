@@ -4,6 +4,10 @@ function throwValueError (value) {
 	}
 }
 
+function parseThresholds (thresholds = '0') {
+	return (thresholds.indexOf(',') > -1 ? thresholds.split(',') : [thresholds]).map(n => validateThreshold(n))
+}
+
 function validateThreshold (threshold) {
 	threshold = parseInt(threshold)
 	if (threshold > 100 || threshold < 0) {
@@ -19,13 +23,13 @@ export default {
 		} else {
 			throwValueError(value)
 			el._vue_visibilityCallback = value
-			const threshold = validateThreshold(arg)
+			const thresholds = parseThresholds(arg)
 			const observer = el._vue_intersectionObserver = new IntersectionObserver(entries => {
 				var entry = entries[0]
 				if (el._vue_visibilityCallback) {
-					el._vue_visibilityCallback.call(null, entry.intersectionRatio > threshold, entry)
+					el._vue_visibilityCallback.call(null, entry.isIntersecting, entry)
 				}
-			}, { threshold })
+			}, { threshold: thresholds })
 			// Wait for the element to be in document
 			vnode.context.$nextTick(() => {
 				observer.observe(el)
