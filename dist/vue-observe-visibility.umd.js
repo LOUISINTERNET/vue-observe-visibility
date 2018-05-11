@@ -10,6 +10,14 @@ function throwValueError(value) {
 	}
 }
 
+function parseThresholds() {
+	var thresholds = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : '0';
+
+	return (thresholds.indexOf(',') > -1 ? thresholds.split(',') : [thresholds]).map(function (n) {
+		return validateThreshold(n);
+	});
+}
+
 function validateThreshold(threshold) {
 	threshold = parseInt(threshold);
 	if (threshold > 100 || threshold < 0) {
@@ -28,13 +36,13 @@ var ObserveVisibility = {
 		} else {
 			throwValueError(value);
 			el._vue_visibilityCallback = value;
-			var threshold = validateThreshold(arg);
+			var thresholds = parseThresholds(arg);
 			var observer = el._vue_intersectionObserver = new IntersectionObserver(function (entries) {
 				var entry = entries[0];
 				if (el._vue_visibilityCallback) {
-					el._vue_visibilityCallback.call(null, entry.intersectionRatio > threshold, entry);
+					el._vue_visibilityCallback.call(null, entry.isIntersecting, entry);
 				}
-			}, { threshold: threshold });
+			}, { threshold: thresholds });
 			// Wait for the element to be in document
 			vnode.context.$nextTick(function () {
 				observer.observe(el);
