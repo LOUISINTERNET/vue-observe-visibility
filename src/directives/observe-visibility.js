@@ -27,7 +27,7 @@ export default {
 			const observer = el._vue_intersectionObserver = new IntersectionObserver(entries => {
 				var entry = entries[0]
 				if (el._vue_visibilityCallback) {
-					el._vue_visibilityCallback.call(null, entry.isIntersecting, entry)
+					el._vue_visibilityCallback.call(null, entry.intersectionRatio > thresholds[0], entry)
 				}
 			}, { threshold: thresholds })
 			// Wait for the element to be in document
